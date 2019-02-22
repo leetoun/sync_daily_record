@@ -1,0 +1,66 @@
+第6章
+网络编译
+1.  DNNC概览
+    DNNC编译器的体系结构如图37所示。前端解析器sparser负责对Caffe模型进行解析，并生成输入模型的中间表示(IR)，优化器
+基于IR进行优化，代码生成器将优化后的IR转换map为DPU指令。
+
+2. DNNC用法
+    DNNC需要选项来控制对神经网络模型的编译处理。这些操作分为两类：1. 必须的  2. 选需。
+Table11
+	1. 必须选项：
+		--prototxt 	Path of Caffe prototxt file
+		--caffemodel 	Path of caffemodel file
+		--output_dir 	Path of output directory
+		--net_name 	Name of neural network
+		--dpu DPU 	target (supported list: 1024FA, 1152FA, 4096FA)
+		--cpu_arch 	CPU target (supported list: arm32, arm64)
+	2. 选需选项：
+		--help 		Show all options of DNNC
+		--version 		Show DNNC version
+		--save_kernel 	Whether save kernel description in file or not
+		--abi		DNNC生成的abi版本，0生成以前elf版本，1生成最新的abi版本。
+		--mode		debug/nomal
+		--dump		
+
+3.  编译ResNet50
+    编译一个网络的时候，需要给DNNC必须的option选项。为了方便，在DNNDK包中已经包含了用于编译ResNet50
+的脚本文件。他们有助于用户熟悉DNNC的选项使用。
+    编译成功后，在参数“output_dir”指定的路径下，将生成 “elf文件”和“kernel部署信息”。
+    由于DPU支持的运算有限，当有不支持DPU运算的时，DNNC自动将目标神经网络分成不同的kernels。用户负责使用
+由N2Cube提供的APIs，来解决数据传输和不同kernel间的通信，APIs可以基于kernel节点的输入输出获取输入输出地址。
+
+    DNNC生成的kernel描述信息包含两部分：
+    第一部分：描述了kernel的个数和拓扑：
+	* Kernel number：根据DPU中支持的operator不同，不同网络生成的kernel数也不同。每个kernel将在第2部分详述。
+	* Kernel topology: kernel拓扑图，描述编译完成时kernel graph视图中的内核。名为“kernel_graph”被保存为扩展名
+		            为.gv的标准DOT文件，存放在当前DNNC工作文件夹下。下面的命令可以将DOT文件转换成JPEG
+		            文件。
+	$dot -Tjpg -o kernel_graph.jpg kernel_graph.gv
+	----------------------------------------------------------
+	例如：Inception-v1的JPEG图
+    	    如下所示，kernel图形节点包含kernel id和kernel type，箭头edge描述两个kernel间的
+	关系，第一个项item表示source kernel的输出张量tensor，第二个项item表示destination kernel的输入张量tensor。
+	    tuple包含两部分：
+		绑定到tensor的输入/输出节点名 name；
+		输入/输出节点的tensor索引 index；
+	使用tuple提供的名字和索引，用户可以通过N2Cube提供的APIs获取输入/输出tensor address。
+    第二部分：详细描述每个kernel：
+	* Kernel id: 当前kernel的id，每个kernel都有DNNC分配的唯一的id。
+	* Kernel name:  当前kernel的名字，DPU支持的每个kernel都有一个相应的elf文件。前缀“dpu_ "+KernelName.elf
+	* Type：kernel的类型，DNNC支持3种kernel类型。（DPU kernel、CPU kernel、ParamKernel）
+	* Nodes：所有当前kernel包含的node。对于DPU支持的kernel，“NA”用于代表所有nodes名字。
+	* Input nodes：当前kernel的所有输入节点。对于DPU不支持的kernel，用户必须通过输出节点获得前一个kernel的
+		        输出，并使用N2Cube提供的api，将这个输出作为当前节点的输入节点。
+	* Output nodes：当前kernel的所有输出节点。输出节点的地址和大小可以用APIs提取出来。
+	----------------------------------------------------------
+	例如，dpu_resnet50_0.elf 和 dpu_resnet50_2.elf 对应的kernel名为 “resnet50_0”和“resnet50_2”。kernel
+	的名字在代码中用于识别kernel。
+	
+DPU支持的运算：
+	Convolution	Support kernel-w and kernel-h values ranging from 1to 8 in any combination
+	ReLU 		No limitations
+	Pooling		Only max-pooling is supported, and kernel size must be 2x2 or 3x3
+	Concat 		No limitations
+	Element-wise 	No limitations
+	InnerProduct 	No limitations
+NOTE：根据FPGA资源的不同，支持的运算也会不同。

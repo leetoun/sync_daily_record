@@ -1,0 +1,9 @@
+问题描述:
+  电脑安装的是双系统,进入ubuntu后,经常出现打不开windows分区的磁盘.
+
+解决:
+  1. 进入windows系统,关闭快速启动,关机.
+  2. 如果1不能解决,
+	$sudo fdisk -l
+	$sudo ntfsfix /dev/sdaxxx  //其中xxx是上面查看的需要处理的设备块文件名
+

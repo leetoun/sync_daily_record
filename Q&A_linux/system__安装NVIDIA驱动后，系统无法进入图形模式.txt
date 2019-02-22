@@ -1,0 +1,25 @@
+现象：
+    之前安装过CUDA（run或者RPM/deb）方式，又安装了nvidia驱动，或者进行了软件升级，apt-get upgrade命令。
+重启后无法进入图形系统。
+
+解决：
+    通过进入recovery mode，选择root 模式，然后进入maintenance模式，可以查看log in的用户名 /home中。
+然后，进行卸载之前安装的NVIDIA的驱动：
+    $sudo apt-get remove --purge  nvidia-*
+重新启动，
+    看看，x-Windows相关文件是否需要进行更新。
+
+
+相关的命令：
+1. dpkg
+2. apt
+3. lsmod
+4. modprobe
+5. lspci -k |grep -A 2 -i 'VGA'     #查看安装的显卡
+6. sudo ubuntu-drivers devices     #查看ubuntu推荐的设备驱动
+7. sudo apt-get install linux-headers-$(uname -r)   #安装kernel对应的内核头文件
+8. sudo service lightdm start/stop   #开启/关闭 lightdm服务。x-Windows相关文件
+9. dpkg --get-selections|grep linux-image    #卸载高版本kernel
+    sudo apt-get remove <高版本kernel名>
+    uname -a
+    update -grub

@@ -1,0 +1,4 @@
+1. VMware的网络配置：
+  3中网络链接模式：桥接模式、NAT模式、Host主机模式。
+  windows中可以看到VMware虚拟出来的2个网卡。可以在VMware的网络编辑器和windows中查看相应的ip地址进行详细的学习。
+  可以参考：https://blog.csdn.net/liyibo373/article/details/53538702

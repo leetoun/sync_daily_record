@@ -1,0 +1,7 @@
+需要修改源下载包的位置。
+Settings  -->  Software&Updates --> Download From
+需要修改为中国，然后再选一个服务器地址。
+
+
+
+输入法，可以安装ibus-pinyin，然后进行添加。

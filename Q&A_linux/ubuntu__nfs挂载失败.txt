@@ -1,0 +1,30 @@
+1.创建共享目录
+#mkdir /home/hellolinux/nfs
+
+2.创建或修改/etc/exports文件
+#vi /etc/exports
+home/hellolinux/nfs 192.168.0.*(rw,sync,no_root_squash)
+
+3.NFS服务的启动与停止
+#service nfs start
+#service nfs stop
+#service nfs restart
+#servcie nfs status(服务状态)
+
+4 在客户机上查看NFS的资源共享情况
+# showmount -e 192.168.0.1
+Export list for 192.168.0.1:
+/home/hellolinux/nfs 192.168.0.*
+
+5 .使用mount命令挂栽共享资源
+mount -t nfs -o nolock 192.168.0.1:/home/hellolinux/nfs /mnt/nfs
+
+
+-------------------------------------------------------
+出现的问题与解决方法：
+[root@FORLINX6410]# mount -t nfs 192.168.0.1:/home/hellolinux/rootfs /mnt/nfs
+svc: failed to register lockdv1 RPC service (errno 111).
+mount: mounting 192.168.0.1:/home/hellolinux/rootfs on /mnt/nfs failed: Connection refused
+解决方案：
+nfs mount 默认选项包括文件锁，依赖于portmap提供的动态端口分配功能。
+解决方法：kill 文件锁（lockd）或者mount -o nolock有说试防火墙的原因。关闭防火墙。

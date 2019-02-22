@@ -1,0 +1,88 @@
+需求:
+    现在有一台电脑HostA可以通过WiFi连接外网,想通过局域网,将其他电脑通过HostA
+连接到外网.
+
+关键词: NAT技术\iptables路由表\sysctl -p
+
+
+方法(待验证):
+    一般插上网卡后用Ubuntu自带的网络工具就可以配置IP，比如static或者DHCP之类，
+不需要手工修改interfaces文件的。插上网线后设置好对应网卡的IP，就能把客户机和双网卡主机互相ping通，
+    如果ping不通，首先检查是否安装防火墙，然后检测网线以及接口。
+
+    现在主要问题是如何实现共享上网，方法如下：
+
+1、修改/etc/rc.local文件，在其中添加
+iptables -F
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -o eth0 -j MASQUERADE
+第一句是清除掉之前所有的iptables规则，
+第二第三句是允许接收和发送数据包，
+第四句是在eth0网口上NAT。
+注意，要在有外部IP的网口上做NAT。
+
+2、修改/etc/sysctl.conf，在文件中加上下面一行： net.ipv4.ip_forward= 1，这里就是开启NAT。1表示转发，如果设置为0的话就是不转发。
+reboot后先连通外网，然后试一下客户机上外网，应该就可以了。
+
+
+方法(待验证)：
+
+    让局域网的所有内网主机通过一台外网主机（两块网卡）实现上网，及搭建nfs实现局域网共享，虽然很简单，但是我觉得写出来与大家分享下比较好。
+主机1:192.168.1.1（外网）eth0
+      192.168.0.1（内网）eth1
+主机2：192.168.0.2 eth0
+
+局域网上网：
+主机1：
+1.开启其转发功能。
+	临时：sudo echo "1">/proc/sys/net/ipv4/ip_forward
+	永久：在sudo vim /etc/sysctl.conf文件中将net.ipv4.ip_forward= 1这行的#号去掉。
+  	#sysctl -p（使之立即生效）
+2.对iptables进行规制的设置
+ 	sudo iptables -F
+ 	iptables -P INPUT ACCEPT
+ 	iptables -P FORWARD ACCEPT
+ 	iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -o eth0 -j MASQUERADE
+	并将其添加到/etc/rc.local里
+	或者打开/etc/network/interfaces文件
+	写pre-up iptables-restore < /etc/iptables.rules
+	post-down iptables-save > /etc/iptables.rules
+3.重启网络sudo /etc/init.d/networking restart
+	主机1设置完毕。
+
+内网主机设置及主机2
+1.打开配置文件sudo vim /etc/network/interfaces 
+	添加下列行：
+    	gateway   192.168.0.1（指定网关--主机1的内网ip）
+    	dns-nameservers 10.1.1.1（DNS和主机1的DNS是一样的）
+2.重启网络sudo /etc/init.d/networking restart
+然后看看现在是否已连网了呢（sudo apt-get update）
+ 
+
+
+
+
+方法:
+在连着４Ｇ上网卡的电脑上，输入以下两条指令：
+１.echo 1 > /proc/sys/net/ipv4/ip_forward
+2.iptables -t nat -A POSTROUTING -s 192.168.100.0/16(ip网关) -o enx0c5b8f279a64
+（4Gwifi的端口号，通过命令行输入ifconfig -a 可以查看） -j MASQUERADE
+
+
+
+在需要上网的局域网的电脑上，将连着４g上网卡的电脑的网址设为网关，命令如下：
+１．root权限下，route add default gw 192.168.100.97(ip) 
+
+２．修改解析域名服务器，进入/etc/resolve.conf 　
+    加入一行　nameserver 8.8.8.8
+就ＯＫ了。
+
+
+
+
+
+参考网址:
+	https://blog.csdn.net/w314169744/article/details/8145792  上网配置
+	http://blog.chinaunix.net/uid-26495963-id-3279216.html    路由表
+	

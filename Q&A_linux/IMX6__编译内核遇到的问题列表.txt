@@ -1,0 +1,26 @@
+
+
+1. 烧写注意事项
+  开始无法使用命令，是因为默认安装的Android系统，如又adb命令。
+  需要烧写Linux系统，烧写使用飞思卡尔的工具，MFGtool。
+  需要上电前按住boot键，然后再上电。（应该是需要按住按键才能进入到uboot的download模式）
+
+
+2. 编译uboot时make错误：
+  tip01：技术支持说需要再执行setup_env.sh这个脚本，去安装编译工具的依赖包。
+  tip02：编译uboot的时候，make okmx6dl_s3_linux_config中，需要去掉其中的linux_。即：
+  make okmx6dl_s3_config
+
+
+3. 编译内核linux提示uboot错误：
+  错误提示，没有mkimage command not found, U-Boot image will not be built。
+  tip01：技术支持邮件回复：需要安装 u-boot-tools。即：
+  sudo apt-get install u-boot-tools
+
+
+4. 外设模块程序的编译
+  tip01：编译模块是为了能够在系统中加载功能模块和卸载功能模块，也可以在编译文件系统的时候就把模块编译好，到开发板上就可以直接使用。
+
+
+5.MFGTool
+  工具的基本使用。

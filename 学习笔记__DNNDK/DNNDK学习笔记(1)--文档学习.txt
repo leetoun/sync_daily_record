@@ -1,0 +1,61 @@
+论坛：https://forums.xilinx.com/t5/Deephi-DNNDK/bd-p/Deephi
+
+DNNDK：
+1.  SDK的文档结构。
+	host_x86：包含了需要拷贝到ubuntu16.04的文件。
+	common：用于保存一些示例的图片和文件等。
+	docs：用户手册。
+	“board name”: 实用工具、DP驱动、DPU运行时和开发库、设备说明书。
+
+HOST SETUP：
+1.  host_x86中包含了DECENT（深度压缩工具）和DNNC（深度神经网络编译器），他们可以优化和加速
+DPU的推断引擎.
+2.  下载并解压了DNNDK后, 复制"host_x86" 文件夹到一个64bit 的ubuntu14.04或16.04系统中，同时需要
+使用Nvidia GPU card。
+3. DNNDK需要安装一些其他的软件来运行。
+	ubuntu14.04 LTS		CUDA8.0(GA2), cuDNN 7.0.5
+
+	ubuntu16.04 LTS		CUDA 8.0 (GA2), cuDNN 7.0.5
+				CUDA 9.0, cuDNN 7.0.5
+				CUDA 9.1, cuDNN 7.0.5
+4. 安装一些Caffe v1.0 的依赖库
+	sudo apt-get install -y --force-yes build-essential autoconf libtool libopenblas-dev libgflags-dev libgoogle-glog-dev libopencv-dev libprotobuf-dev protobuf-compiler libleveldb-dev liblmdb-dev libhdf5-dev libsnappy-dev libboost-all-dev libyaml-cpp-dev libssl-dev
+5. 安装CUDA
+	从英伟达官网 https://developer.nvidia.com/cuda-toolkit，下载ubuntu系统所用的CUDA,并
+安装到"/usr/local/"目录下面。
+6. 安装cuDNN
+	从官网下载对应于CUDA版本的cuDNN。 https://developer.nvidia.com/cudnn 解压缩并拷贝到
+“usr/local/"目录下。使用下面的命令：
+	$ sudo tar -xzvf cudnn-9.1-linux-x64-v7.tgz
+	$ sudo cp cuda/include/cudnn.h /usr/local/cuda/include
+	$ sudo cp cuda/lib64/libcudnn* /usr/local/cuda/lib64
+	$ sudo chmod a+r /usr/local/cuda/include/cudnn.h /usr/local/cuda/lib64/libcudnn*
+
+最后，在“host_x86”目录下面执行命令：
+	./install.sh  board_name   #安装软件到主机上。
+	#board name只能用 DP-8020 / DP-N1 / Ultra96 / ZCU104 / ZCU102其中之一。
+-----------------------------------------------------------------------------------------------------------
+CUDA Toolkit：
+1.  CUDA Toolkit包含了GPU-accelerated库、调试和优化工具、C/C++编译器和运行时库，来进行应用开发。
+	GPU-accelerated库，支持多个领域的加速。如现行代数、图像和音频处理、深度学习和图像分析领域。
+2.  从CUDA体系结构的组成来说，包含了三个部分：开发库、运行期环境和驱动
+
+3.  CUDA 的核心有三个重要抽象概念： 线程组层次结构、共享存储器、屏蔽同步（barriersynchronization），
+可轻松将其作为C语言的最小扩展级公开给程序员。
+4.  CUDA 软件堆栈由几层组成，一个硬件驱动程序，一个应用程序编程接口（API）和它的Runtime，还有二个高级的通用数学库，CUFFT 和CUBLAS。硬件被设计成支持轻量级的驱动和Runtime 层面，因而提高性能。
+
+安装CUDA：
+	Installation Instructions:
+	`sudo dpkg -i cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64.deb`
+	`sudo apt-key add /var/cuda-repo-<version>/7fa2af80.pub`
+	`sudo apt-get update`
+	`sudo apt-get install cuda`
+更新升级：
+	sudo apt-get install cuda 
+	sudo apt-get install cuda-drivers
+------------------------------------------------------------------------------------------------------------------------------
+深度学习是人工智能和机器学习的一个子集，它使用多层人工神经网络在目标检测、语音识别、语言翻译等任务中提供最高(state of the art)的准确性。深度学习不同于传统的机器学习技术，它可以自动从图像、视频或文本等数据中学习表示，而无需引入手工编码的规则或人类领域知识。它们高度灵活的体系结构可以直接从原始数据中学习，并在提供更多数据时提高预测精度。
+
+
+
+

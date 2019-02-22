@@ -1,0 +1,16 @@
+UDS\OBD\XCP\CCP:
+
+  OBD是英文On-Board Diagnostic的缩写，中文翻译为“车载诊断系统”。
+  UDS协议即ISO14229,是Unified Diagnostic Services，统一诊断服务，是诊断服务的规范化标准，
+比如读取故障码应该向ecu发什么指令，读数据流又是发什么指令。
+OBD是关注车辆售后实时排放的理念形成的行业规范，而UDS是诊断服务的统一化规范，只是应用层的规范。
+  UDS和OBD的最大区别就在于"unified"上，它是面向整车所有ECU的，而OBD是面向排放系统的。
+  UDS不是法规要求的，没有统一实现标准，其优势在于方便生产线检测设备的开发，同时更大的方便了售后维修保养和车联网的功能实现。
+
+
+CCP: CAN Calibration Protocol. 
+XCP: Universal Measurement and Calibration Protocol . 
+区别：
+CCP 只是基于CAN 总线。
+XCP 脱离物理层，基于 CAN, FLexRay , LIN, SXI（SPI、SCI) 等等都可以。
+二者都源于ASAM 

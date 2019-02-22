@@ -1,0 +1,70 @@
+
+查看Ubuntu安装包的服务
+  软件源设置： 	/etc/apt/sources.list
+  搜索软件源数据”：	apt-cache search foo
+  列出相关软件源：	apt-list foo 
+1）apt-cache depends packagename  了解包的依赖关系
+2）apt-cache rdepends packagename  查看该包被哪些包依赖
+
+  下载源 archives：	apt-get source pkg1【pkg2 ...】
+  更新软件源数据： 	apt-get update
+  升级已安装软件：	apt-get upgrade   #谨慎使用。
+  升级系统版本：	apt-get dist-upgrade  #系统版本升级
+  通过安装包或卸载包来修复依赖错误：apt-get -f install
+
+  重新安装软件包：	apt-get --reinstall install foo
+  删除软件包释放的内容：	apt-get remove foo
+  卸载软件同时清除该软件配置文件：apt-get --purge remove foo
+  删除不需要的包”：		apt-get autoclean
+  删除所有已下载的包”：	apt-get clean
+
+
+  自动安装编译一软件所需要的依赖包”： apt-get build-dep foo
+-------------------------------------------------------------------------------------------------
+4. dpkg包管理
+  查找			dpkg -S 从已安装的软件中查找文件
+  显示某个DEB包信息：	dpkg -I xx.deb (大写的i) --info
+  查看某个DEB包内的文件列表：	dpkg -c xx.deb	--contents
+  安装DEB包：		dpkg -i xx.deb	--install
+  安装DEB包（指定根目录）：	dpkg --root=<directory> -i xx.deb
+  显示所有已安装软件：	dpkg -l	（小写的L）--list
+  显示已安装包文件列表：	dpkg -L foo	--list files <package>安装的文件及目录
+  显示已安装包信息：		dpkg -s foo	--status
+  卸载包：			dpkg -r foo	--remove
+  卸载软件包并删除其配置文件：	dpkg -P foo	--purge
+  重新配置已安装程序：	dpkg-reconfigure foo
+  --admindir=<directory>	Use <directory> instead of /var/lib/dpkg.  admindir是干什么用的？
+  --root=<directory>         	Install on a different root directory.
+  --instdir=<directory>      	Change installation dir without changing admin dir.
+  --no-debsig               	Do not try to verify package signatures.
+
+-------------------------------------------------------------------------------------------------
+ubuntu中查找软件的安装位置：
+ubuntu中的软件可通过图形界面的软件中心安装，也可以通过命令行apt-get install安装。但是安装后的软件在哪个位置呢？
+这点跟windows环境下安装软件的路径选择不一样。ubuntu中可供调用的终端大都在/usr/bin或者/opt，但也不尽然。可尝试
+下面的方法快速找到软件的位置：
+	1.执行该程序；
+	2.用命令 ps -e 找到该程序的名字；
+	3.用 find / whereis 命令查找文件位置；
+此外，如果知道使用apt-get install命令安装的软件，可直接用命令 dpkg -S softwarename 显示包含此软件包的所有位置，
+dpkg -L softwarename 显示安装软件。
+再用find/whereis命令。
+-------------------------------------------------------------------------------------------------
+apt-get的更新过程
+1）执行apt-get update
+
+2）程序分析/etc/apt/sources.list
+
+3）自动连网寻找list中对应的Packages/Sources/Release列表文件，如果有更新则下载之，存入/var/lib/apt/lists/目录
+
+4）然后 apt-get install 相应的包 ，下载并安装。
+这样，在本地建立软件及依赖关系列表，就不用每次都到镜像源中查找相关的软件及依赖关系。
+
+3、apt相关文件
+var/lib/dpkg/available    文件的内容是软件包的描述信息, 该软件包括当前系统所使用的Debian安装源中的
+	所有软件包,其中包括当前系统中已安装的和未安装的软件包.
+/etc/apt/sources.list   记录软件源的地址（当你执行 sudo apt-get install xxx 时，Ubuntu 就去这些站点下载软件包到本地并执行安装）
+/var/cache/apt/archives   已经下载到的软件包都放在这里（用 apt-get install 安装软件时，软件包的临时存放路径）
+/var/lib/apt/lists    使用apt-get update命令会从/etc/apt/sources.list中下载软件列表，并保存到该目录
+
+。

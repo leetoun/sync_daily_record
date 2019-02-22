@@ -1,0 +1,48 @@
+NFS的使用
+1. 安装nfs服务
+   apt-get install nfs-kernel-server nfs-common portmap
+
+
+2. 建立一个共享文件夹，并在配置文件/etc/exports下配置。
+   /home/leetoun/nfsroot    *(rw,sync,no_root_squash)
+	#*表示任何ip段都可以访问。
+	#rw 可读写
+	#sync 读写进行同步
+	#no_root_squash：登入 NFS 主机使用分享目录的使用者，如果是 root 的话，那么对于这个分享的目录来说，
+		他就具有 root 的权限！这个项目『极不安全』，不建议使用！ 
+	#root_squash：在登入 NFS 主机使用分享之目录的使用者如果是 root 时，那么这个使用者的权限将被压缩
+		成为匿名使用者，通常他的 UID 与 GID 都会变成 nobody 那个系统账号的身份.
+
+
+3. 如何查看Linux是否安装了nfs服务
+	1、通过进程查看nfs服务是否运行
+	ps -aux|grep -v grep|grep nfs  #有该进程即为开启状态
+
+	2、通过命令查看nfs服务的状态
+	/etc/init.d/nfs status
+
+	3、chkconfig命令查询系统服务
+	chkconfig --list nfs
+
+
+4. nfs常用命令
+	1.创建共享目录
+	#mkdir /home/hellolinux/nfs
+
+	2.创建或修改/etc/exports文件
+	#vi /etc/exports
+	home/hellolinux/nfs 192.168.0.*(rw,sync,no_root_squash)
+
+	3.NFS服务的启动与停止
+	#service nfs start
+	#service nfs stop
+	#service nfs restart
+	#servcie nfs status(服务状态)
+
+	4 在客户机上查看NFS的资源共享情况
+	# showmount -e 192.168.0.1
+	Export list for 192.168.0.1:
+	/home/hellolinux/nfs 192.168.0.*
+
+	5 .使用mount命令挂栽共享资源
+	mount -t nfs -o nolock 192.168.0.1:/home/hellolinux/nfs /mnt/nfs

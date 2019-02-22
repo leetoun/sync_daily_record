@@ -1,0 +1,26 @@
+
+如何修改linux主机名才能生效?
+1.hostname +主机名 (这个只是做为暂时的,重启后将恢复到原来的名字.)
+2.很多人说修改/etc/hosts文件,其实这个文件里的主机名只是为来提供给dns解析的.如果你用不上dns,只需要修改主机名,那修改这个没用.
+3..修改这个文件etc/sysconfig/network这个文件里的主机名.(重启后生效)
+NETWORKING=yes
+HOSTNAME=主机名
+
+总结:
+完整:
+第一步：
+#hostname oratest 
+第二步：
+修改/etc/sysconfig/network中的hostname
+第三步：
+修改/etc/hosts文件
+
+===========================================================
+
+1、临时修改主机名：$ sudo hostname 主机名修改只能临时有效，机器重启后会自动还原。
+2、永久修改主机名：修改hostname文件（路径：/etc/hostname）：
+$ sudo nano /etc/hostname把hostname文件里面所有原来的名称改成你想改成的名称。
+主机名同时也保存在/etc/hosts文件中，需要把当前IP地址对应的主机名修改为hostname文件中的名称。
+$ sudo nano /etc/hosts
+最后重启机器：
+$ reboot

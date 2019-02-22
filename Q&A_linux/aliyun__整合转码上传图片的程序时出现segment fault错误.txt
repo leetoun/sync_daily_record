@@ -1,0 +1,10 @@
+现象：
+	整合socket接收TCP数据，转码yuv2bmp格式，上传图片到aliyun。共3个modules，但是会出现“segment fault！”
+
+
+结论：
+	通过测试，是TCP接收数据时候，偶尔会出现这个情况。
+
+
+学习：
+	

@@ -1,0 +1,29 @@
+ADV7180
+1. SDTV(标清电视) Video decoder。目前的标清：720×576 4：3，即扫描参数与现在的模拟电视一样，但水平清晰度提高了一倍多。
+
+主要特点：
+1. 可应用于汽车应用；
+2. 支持NTSC/PAL/SECAM 制式的颜色解码
+3. 10bit 的ADC, 4路CVBS过采样(anolog video input)，2路Y/C模式过采样，和2路YPrPb过采样（per channel）
+4. 3路视频输入通道有AA(antialiasing) filter 抗锯齿波滤波器。
+5. CVBS(composite), Y/C(S-Video), and YPrPb(component) video input surpport.  component代表分量。
+CVBS:
+  全称：Composite Video Broadcast Signal 或Composite Video Blanking and Sync  中文解释：复合视频广播信号 或 复合视频消隐和同步
+CVBS(composite video broadcast signal)复合电视广播信号,包含视频(图像)信号,行场同步信号,行场消隐信号,前后均衡脉冲信号等;RGB就是指视频信号,不包含其他信号.
+RGB的视频质量要好于cvbs.因为cvbs会造成亮色串扰.
+S-Video :
+(Super-Video,有时被称为Y / C视频或分量视频)是一个视频信号传输的亮度信号和色度信号传输分别以达到更好的画面清晰。 
+YPbPr：
+  是为了满足高质量视频传输而设计的色彩分量形式及接口形式，采用并行传输的方式。
+PbPr也是由B'-Y'及R'-Y'经过限幅得到的，目前，这种接口多见于模拟分量录像机、高清摄录一体机及DVD播放机等。
+模拟分量传输绕过了PAL编码与解码，减轻了亮/色串扰等编解码对图像的损失，但传输距离受到限制。
+  YUV（亦称YCrCb）是被欧洲电视系统所采用的一种颜色编码方法（属于PAL）。YUV主要用于优化彩色视频信号的传输，使其向后兼容老式黑白电视。
+主要用于电视系统以及模拟视频领域，它将亮度信息（Y）与色彩信息（UV）分离，没有UV信息一样可以显示完整的图像，只不过是黑白的，这样的设计很好地解决了彩色电视机与黑白电视的兼容问题。
+与RGB视频信号传输相比，它最大的优点在于只需占用极少的带宽（RGB要求三个独立的视频信号同时传输）。
+  其中“Y”表示明亮度（Luminance或Luma），也就是灰阶值；
+而“U”和“V”表示的则是色度（Chrominance或Chroma），作用是描述影像色彩及饱和度，用于指定像素的颜色。
+6. 电视信号场消隐期(VBI) 
+7. 8bit 的 ITU-R BT.656 YCrCb 4:2:2 output and HS\VS and FIELD(48pin & 64pin available)
+8. 有掉电模式和超低睡眠电流。
+9. 兼容2线的 I2C接口。
+10. 单1.8V 供电。

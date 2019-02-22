@@ -1,0 +1,8 @@
+现象：
+    依照手册操作后，开发板运行，无法进入到系统。
+
+
+解决：
+    是因为make depend后，没有进行编译。
+    make -s -j
+    make -s appimage

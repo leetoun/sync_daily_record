@@ -1,0 +1,8 @@
+https://e2echina.ti.com/question_answer/dsp_arm/c6000_multicore/f/53/t/24056
+使用CCS5调试C6678多核DSP时如何保证cache一致性
+
+对C66 DSP，对于共享memory如果相应的MAR寄存器cache属性使能，如果多个master去访问这块memory，就必须软件维护cache一致性，与cache大小无关，cache大小会影响miss、hit概率，从而影响程序运行的性能。
+
+比如，那我核1上想得到核0上在ddr里存放的一段数据，我先把核0上这段数据的首地址传到核1，然后从这个地址去把数据读出来使用，这个cache一致性该怎么去维护啊？？？
+
+mar在6678的数据手册上有，ddr的第一块16mb地址对应的好像128，CACHE_enableCaching (128)      就是使能首地址为0x80000000的16Mb的地址的cache属性。共享的话，在核0把数据写回，即把cache里的数据写回到ddr里面，用cache_wb()函数，而在核1里面把cache里的数据丢弃，cache_inv()，cache里面原来对应于ddr的数据是旧的数据，无效以后，下次核1要使用ddr里对应的数据，cache就会重新读取ddr里面更新了的数据。

@@ -1,0 +1,9 @@
+问题:想从终端terminal中打开文件夹视图.
+
+
+
+$gnome-open /etc
+
+$ubuntu中  nautilus /etc
+这个命令就是以root权限打开一个窗口，来管理文件。
+比如你要修改 /etc/apt/sources.list不用终端的话，直接点文件夹进入该目录，你只有查看的权限，而用了nautilus命令后再进该目录，你就可以对里面的文件修改，删除等.

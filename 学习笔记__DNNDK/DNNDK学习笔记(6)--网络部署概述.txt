@@ -1,0 +1,112 @@
+第4章：网络部署概述
+
+1.  
+    深度学习应用基本分两步：训练、推断。训练阶段是利用大量训练数据设计为特定任务(如图像分类)设计神经网络。
+推理阶段包括部署之前神经网络处理之前没有见过的新输入数据。
+    DNNDK工具链提供了一个创新的工作流，可以有效地在DPU上部署深度学习推理应用程序，只需5个简单步骤:
+	1. 压缩 神经网络模型
+	2. 编译 神经网络模型(分析网络，生成DPU支持和不支持的指令。) 
+	3.DNNDK api 编程
+	4. 编译混合DPU应用程序
+	5. 运行混合DPU可执行文件
+
+	NOTE:
+	    SDK中不包含DECENT的prune工具**只有quantization工具。
+
+2. 以ResNet为例
+	---------------------Table 8：DECENT的输入文件--------------------------
+	1 float.prototxt 		Floating-point model for ResNet-50
+	2 float.caffemodel 		Pre-trained weights file for ResNet-50
+	3 calibration dataset 	A subset of the training set containing 100 to 1000 images
+
+a.  Network compression   
+    路径$deephi_dnndk_package/host_x86/models/resnet50下的，脚本文件“decen.sh”用于调用(invoke) DECENT工具
+用近似参数实现量化。
+    	NOTE:  
+	    运行量化ResNet-50程序前，DECENT使用的校准数据集dataset需要先准备好。可以从下面网址中下载100到1000
+	张图片， http://www.image-net.org/an 。然后修改ResNet-50 prototxt中image_data_param的“source”
+	“root_folder”设置。
+    脚本执行后会在“/decent_output/”文件夹下生成两个文件：
+	“deploy.prototxt” 	：Quantized network description file
+ 	“deploy.caffemodel” ：Quantized Caffe model parameter file (non-standard Caffe format)
+他们会用于之后编译工程。
+
+
+b. Network compilation
+    在文件夹$deephi_dnndk_package/host_x86/models/resnet50有脚本文件“dnnc.sh”。它调用DNNC工具，用合适的选项
+对模型进行编译。
+    运行脚本将ResNet-50模型编译，生成两个ELF格式DPU内核文件。其中包含ResNet-50网络的DPU指令和参数，
+还显示了哪些是DPU不支持的层，如图34所示。将ResNet-50网络模型编译成4个不同的内核：
+	* Kernel 0： resnet50_0 （ run on DPU）
+	* Kernel 1： resnet50_1 （ deploy on the CPU）
+	* Kernel 2： resnet50_2 （ run on DPU）
+	* Kernel 3： resnet50_3 （ deploy on the CPU）
+DNNC为每个kernel在“/output_dir/”文件夹下生成了名字为：“dpu_resnet50_0.elf”和“dpu_resnet50_2.elf”的可执行文件。
+ “resnet50_1”和“resnet50_3” 是为了 “Average Pooling”和“Softmax”操作，他们不能部署到DPU中，只能部署到CPU
+中进行运行。
+
+
+3. 使用DNNDK编程
+    在DPU上开发深度学习应用，需要3类工作：
+	* 使用DNNDK api管理DPU内核
+		- DPU内核的创建和销毁
+		- DPU任务创建
+		- 管理输入和输出张量
+	* 实现DPU不支持的kernels
+	* 添加预处理和后处理例程来读取数据或计算结果
+
+a. ResNet-50示例:
+    对于ZCU102，ResNet-50的示例代码存放在“$deephi_dnndk_package/ZCU102/samples/resnet50/”文件夹下，
+DPU kernels 和 tasks的代码写在main函数中。（kernel应该理解成网络）。
+	int main(void) 
+	{
+	/* DPU Kernels/Tasks for running ResNet-50 */  
+		DPUKernel* kernelConv;
+		DPUKernel* kernelFC;
+		DPUTask* taskConv;
+		DPUTask* taskFC;
+	/* Attach to DPU driver and prepare for running */  调用dupOpen()开启一个DPU 设备；
+		dpuOpen();
+	/* Create DPU Kernels for CONV & FC Nodes in ResNet-50 */  调用dupLoadKernel()来装入DPU kernels
+		kernelConv = dpuLoadKernel(KERNEL_CONV);
+		kernelFC = dpuLoadKernel(KERNEL_FC);
+	/* Create DPU Tasks for CONV & FC Nodes in ResNet-50 */  调用dpuCreateTask()来为每个DPU kernel创建task
+		taskConv = dpuCreateTask(kernelConv, 0);
+		taskFC = dpuCreateTask(kernelFC, 0);
+	/* Run CONV & FC Kernels for ResNet-50 */  分别调用“计算平均池化”和“计算Softmax”
+		runResnet50(taskConv, taskFC);
+	/* Destroy DPU Tasks & release resources */  调用两个函数解除kernel和task
+		dpuDestroyTask(taskConv);
+		dpuDestroyTask(taskFC);
+	/* Destroy DPU Kernels & release resources */
+		dpuDestroyKernel(kernelConv);
+		dpuDestroyKernel(kernelFC);
+	/* Detach DPU driver & release resources */  最后关闭DPU设备
+		dpuClose();
+		return 0;
+	}
+
+b. 图像分类示例:
+	在函数 runResnet50()中完成，它执行下面的操作：
+	- 使用 OpenCV的 imread()获取图像，并调用 dpuSetInputImage2() API将图像设为DPU的resnet50_0的输入；
+	- 调用 dpuRunTask()在ResNet-50模型中运行taskConv卷积操作；
+	- 对前一个卷积操作的输出进行平均池化，并将taskFC操作的输入设置为输出；
+	- 调用 dpuRunTask在DPU上运行完全连接的操作taskFC；
+	- 使用完全连接操作的输出作为输入，在CPU上执行softmax；
+	- 输出前5个分类类别和相应的概率；
+		Mat image = imread(baseImagePath + imageName);
+		dpuSetInputImage2(taskConv, CONV_INPUT_NODE, image);
+		dpuRunTask(taskConv);
+		CPUCalcAvgPool(taskConv, taskFC);
+		dpuRunTask(taskFC);
+	/* Get FC result and convert from INT8 to FP32 format */
+		dpuGetOutputTensorInHWCFP32(taskFC, FC_OUTPUT_NODE,
+						FCResult, channel);
+		CPUCalcSoftmax(FCResult, channel, softmax);
+		TopK(softmax, channel, 5, kinds);
+4.  混合编译
+    切换到相应目录下，“$deephi_dnndk_package/samples/resnet50”执行 make，将生成CPU的二进制代码，并连接到
+DPU kernels “dpu_resnet50_0.elf” and “dpu_resnet50_2.elf”中。
+
+5. 运行。
+	

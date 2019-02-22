@@ -1,0 +1,49 @@
+ZCU104
+Introduction：
+1.  zcu系列适合大吞吐量且需要低延时的深度学习推断需求。DNNDN支持的开发板上的SD卡系统镜像可以
+    从网站下载， http://www.deephi.com/technology/boards。在使用DNNDK v2.08前，需要下载最新版本的镜像文件。
+2.  zcu104开发板，使用mid-rang的ZU7 UltraScale+ 器件，使用户可以快速进行机器学习应用。更多zcu104
+的信息，请访问Xilinx网站.  https://www.xilinx.com/products/boards-and-kits/zcu104.html
+双B4096F DPU核心在程序逻辑中实现，为深度学习推理加速提供2.4 top INT8峰值性能。在Xilinx的ZU7上实现主频333Mhz的双B4096F DPU。
+3. 在DNNDK v2.08 中不包含多线程的ResNet-50、ADAS 检测和Segmentation三个网络。因为他们对电源的
+要求更高，zcu104默认配置不支持。有单独的补丁包可以解决这个问题。如果需要，可以联系DNNDK技术
+支持团队。
+
+
+下面使用DP-8020演示，如何在评估板上设置DNNDK运行环境：
+note：推荐使用ETCHER，将img镜像文件写入TF卡中。
+
+Boot the evaluation board：
+1.  对于DP-8020板子来说，先连接电源12V/2A；
+2.  连接UART调试接口到host和其他外设；
+3.  打开电源，等待系统启动；
+4.  登入系统；
+5.  第一次登陆，需要修改一下配置，然后重启生效。
+
+
+有3种方法登录开发板：
+One： UART
+	Linux 系统中可以安装Minicom或者类似的软件。
+Two：Ethernet
+	可以通过网口，SSH进行连接登录目标板。
+Three：Standalone
+	可以接上显示器、鼠标和键盘，直接单机运行。
+
+
+Copy DNNDK tools to the evaluation board：
+1.  连接建立后可以将DNNDK包中的文件从host复制到目标板上，为了减小DNNDK包的大小，board_name/
+common中包含了示例程序需要的图片的link链接。
+    Note：如果在windows 上进行了解压，会破坏这种链接文件。
+2. 在windows系统中需要先安装 MobaXterm。
+	然后点击“Start local terminal”，这个位置可以被访问；
+	假设DNNDK包位于"D"盘的根目录，使用下面命令将Windows中的DNNDK包复制到，IP地址为192.168.0.10的
+	目标板中；
+	cd d:
+	tar -xzvf deephi_dnndk_v2.08_beta.tar.gz
+	cd deephi_dnndk_v2.08_beta/
+	scp -r ./DP-8020 root@192.168.0.10:~/
+	最后，在目标板上，切换到“～/DP-8020”文件夹，运行 install.sh后出现，安装成功，并reboot。
+	reboot后可以自动替代前一版本。
+
+
+

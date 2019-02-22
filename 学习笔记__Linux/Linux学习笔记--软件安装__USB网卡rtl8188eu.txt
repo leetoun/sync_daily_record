@@ -1,0 +1,13 @@
+可以参考：
+https://blog.csdn.net/zhu334974857/article/details/77185732
+
+
+github下载驱动：
+https://github.com/lwfinger/rtl8188eu
+
+
+
+PPA是什么？可以通过PPA安装驱动？
+sudo apt-add-repository ppa:thopiekar/mt7601
+sudo apt-get update
+sudo apt-get install mt7601-sta-dkms

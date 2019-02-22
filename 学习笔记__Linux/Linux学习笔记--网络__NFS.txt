@@ -1,0 +1,14 @@
+NFS：
+在主机1上
+sudo apt-get install nfs-server（安装所需的软件）
+打开文件sudo vi /etc/exports
+/home/aaa    *(rw,sync)
+sudo showmount -e（可查看共享的文件夹）
+在主机2上
+sudo apt-get install nfs-common
+sudo mkdir /home/bbb
+sudo mount -t nfs 192.168.0.1:/home/aaa /home/bbb
+然后cd /home/bbb
+touch 123.txt
+你可以从主机1上看到/home/aaa文件夹里多了个文件123.txt
+到此结束。

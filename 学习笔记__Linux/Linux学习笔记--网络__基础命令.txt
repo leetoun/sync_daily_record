@@ -1,0 +1,53 @@
+网络相关的命令
+1. 
+路由网关：
+  route命令用来显示或修改ip的路由表。
+  route add [-net|-host] [网域或主机] netmask [mask] [gw|dev]
+  -net ：表示后面接的路由为一个网域；
+  -host ：表示后面接的为连接到单部主机的路由；
+
+  netmask ：与网域有关，可以设定 netmask 决定网域的大小；
+  gw ：gateway 的简写，后续接的是 IP 的数值喔，与 dev 不同；
+  dev ：如果只是要指定由那一块网路卡连线出去，则使用这个设定，后面接 eth0 等 
+
+
+2. 
+自动获取网络地址DHCP：
+  udhcp命令。
+
+
+3. 修改MAC地址：
+  使用ifconfig可以对mac地址进行修改，如下
+   ifconfig eth0 hw ether 00:11:22:33:44:55 
+ifconfig相关得参数：
+  eth0是文件名，网卡
+  netmask：子网掩码。
+  broadcast：广播地址
+  up：开启
+  down：关闭
+
+
+4.
+  DNS 记录在/etc/resolv.conf 配置文件中。
+# nameserver ip address
+nameserver 192.168.0.1
+nameserver 192.168.0.2
+
+
+5. 
+  断电保存网络参数。
+  在/etc/rc.d/init.d/start_userapp 文件增加网络配置命令：
+#you can add your app start_command three
+ifconfig eth0 192.168.28.236
+route add default gw 192.168.28.1
+#start qt command,you can delete it
+
+
+2. ping的一些选项
+  $ifconfig 网络接口 [选项] 地址/参数
+  -c count发packet的数量。 ping -c 4 192.168.1.111
+  -s packetSize data bytes。默认56，转换成ICMP加上8个header成为64bytes。
+  -p pattern 最多发16个“pad”bytes来填充packet包。如 -p ff 发的都是1。
+  -t Time To Live。设置IP包的生命。
+  ping -c 4 192.168.29.1
+  测试4个数据包。类似于windows里面的ping 192.168.29.1。

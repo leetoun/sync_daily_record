@@ -1,0 +1,12 @@
+首先,可能需要现添加DNS.
+------------------------------------------
+在/etc/network/interfaces中添加DNS进行解析:
+nameserver 211.99.25.1
+nameserver 202.106.0.20 
+重新启动,network: $sudo /etc/init.d/network  restart
+------------------------------------------
+然后,此时应该可以打开firefox的插件中心了.
+在firefox的add-on插件中,下载 baiduexporter,可以将百度文件下载链接导出到下载软件.
+再开启aria2.
+
+参考:https://www.jianshu.com/p/3c1286c8a19d

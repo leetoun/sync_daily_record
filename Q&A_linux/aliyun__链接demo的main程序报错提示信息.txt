@@ -1,0 +1,71 @@
+工程师67470号:您好，需要加的库清单如下
+1. apr相关 
+apr-util、apr-iconv、apr、libexpat（apr 里面有用到 libexpat，如果链接不过的话，需要把这部分加上去。）
+
+2. http库相关 
+ openssl、curl、zlib（arm 的工具链有zlib库，可以通过-lz）
+
+3. xml 库
+minixml（建议用新版本，但是不要使用 2.10 版本，该版本有内存泄漏）
+
+4.交叉编译我们没有提供相关的文档，这是linux的范畴。
+
+5.可以使用CMake的，需要修改CMakeList.txt 文件以后选择使用arm-none-Linux-gcc进行编译
+只要把编译需要的依赖库都指定路径就行  
+-----------------------------------------------------------------------------------------------------
+
+
+
+如果链接时用-L指定了动态库的路径，且不在上述三类路径中，运行时需要使用LD_LIBRARY_PATH指定
+
+$ arm-none-linux-gnueabi-gcc main.o -o main -lpthread  -oss_c_sdk  -L /home/leetoun/aliyun/imx6/libapr/lib -lapr-1 -L /home/leetoun/aliyun/imx6/libaprutil/lib -laprutil-1 -L /home/leetoun/aliyun/imx6/libcurl/lib -lcurl -L /home/leetoun/aliyun/imx6/libmxml/lib -lmxml
+错误：
+main.o: In function 	`main':
+main.c:(.text+0x35c): undefined reference to `aos_http_io_initialize'
+main.c:(.text+0x3cc): undefined reference to `aos_log_set_output'
+main.c:(.text+0x3d4): undefined reference to `aos_log_set_level'
+main.c:(.text+0x438): undefined reference to `aos_http_io_deinitialize'
+main.c:(.text+0x454): undefined reference to `aos_log_level'
+main.c:(.text+0x458): undefined reference to `aos_log_format'
+
+main.o: In function 	`init_sample_request_options':
+main.c:(.text+0x488): undefined reference to `oss_config_create'
+main.c:(.text+0x518): undefined reference to `aos_http_controller_create'
+
+main.o: In function 	`put_object_from_buffer':
+main.c:(.text+0x5a8): undefined reference to `oss_request_options_create'
+main.c:(.text+0x630): undefined reference to `aos_buf_pack'
+main.c:(.text+0x66c): undefined reference to `oss_put_object_from_buffer'
+
+main.o: In function 	`put_object_from_file':
+main.c:(.text+0x730): undefined reference to `oss_request_options_create'
+main.c:(.text+0x7c4): undefined reference to `oss_put_object_from_file'
+main.c:(.text+0x830): undefined reference to `OSS_CONTENT_TYPE'
+
+main.o: In function 	`get_object_to_buffer':
+main.c:(.text+0x8ec): undefined reference to `oss_request_options_create'
+main.c:(.text+0x960): undefined reference to `oss_get_object_to_buffer'
+
+main.o: In function 	`get_object_to_file':
+main.c:(.text+0xb6c): undefined reference to `oss_request_options_create'
+main.c:(.text+0xbfc): undefined reference to `oss_get_object_to_file'
+
+main.o: In function 	`delete_object':
+main.c:(.text+0xca8): undefined reference to `oss_request_options_create'
+main.c:(.text+0xcec): undefined reference to `oss_delete_object'
+
+/home/leetoun/aliyun/imx6/libaprutil/lib/libaprutil-1.so: undefined reference to `XML_GetErrorCode'
+/home/leetoun/aliyun/imx6/libaprutil/lib/libaprutil-1.so: undefined reference to `XML_SetEntityDeclHandler'
+/home/leetoun/aliyun/imx6/libaprutil/lib/libaprutil-1.so: undefined reference to `XML_ParserCreate'
+/home/leetoun/aliyun/imx6/libaprutil/lib/libaprutil-1.so: undefined reference to `XML_SetCharacterDataHandler'
+/home/leetoun/aliyun/imx6/libaprutil/lib/libaprutil-1.so: undefined reference to `XML_ParserFree'
+/home/leetoun/aliyun/imx6/libaprutil/lib/libaprutil-1.so: undefined reference to `XML_SetUserData'
+/home/leetoun/aliyun/imx6/libaprutil/lib/libaprutil-1.so: undefined reference to `XML_StopParser'
+/home/leetoun/aliyun/imx6/libaprutil/lib/libaprutil-1.so: undefined reference to `XML_Parse'
+/home/leetoun/aliyun/imx6/libaprutil/lib/libaprutil-1.so: undefined reference to `XML_ErrorString'
+/home/leetoun/aliyun/imx6/libaprutil/lib/libaprutil-1.so: undefined reference to `XML_SetElementHandler'
+collect2: ld returned 1 exit status
+
+
+其实报错原因是由于有些库没有找到这些函数，也就是链接出了问题。查找这个写函数，在哪些库中调用了，然后修复一下库就行了。
+可以用file命令，来查看库的类型。

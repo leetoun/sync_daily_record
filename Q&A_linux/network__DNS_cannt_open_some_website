@@ -1,0 +1,8 @@
+问题: 有的网页无法打开,如想安装firefox的addon插件时,无法打开插件主页.
+
+
+解决:
+  1. 在/etc/network/interfaces中添加DNS进行解析:
+nameserver 211.99.25.1
+nameserver 202.106.0.20 
+然后进行重新启动,network: $sudo /etc/init.d/network  restart

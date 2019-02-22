@@ -1,0 +1,3 @@
+ls -al /dev/disk/by-uuid   查看硬盘分区的UUID
+
+

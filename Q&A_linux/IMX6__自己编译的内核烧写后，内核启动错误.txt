@@ -1,0 +1,75 @@
+部分报警信息：
+============================================================
+NET: Registered protocol family 31
+Bluetooth: HCI device and connection manager initialized
+Bluetooth: HCI socket layer initialized
+Bluetooth: L2CAP socket layer initialized
+Bluetooth: SCO socket layer initialized
+cfg80211: Calling CRDA to update world regulatory domain
+i2c-core: driver [max17135] using legacy suspend method
+i2c-core: driver [max17135] using legacy resume method
+Switching to clocksource mxc_timer1
+Unable to handle kernel paging request at virtual address 74616c70
+pgd = 80004000
+[74616c70] *pgd=00000000
+Internal error: Oops: 5 [#1] PREEMPT SMP
+Modules linked in:
+CPU: 0    Not tainted  (3.0.35-2666-gbdde708 #1)
+PC is at kmem_cache_alloc+0xa8/0x100
+LR is at con_insert_unipair+0xb8/0x104
+pc : [<800f2768>]    lr : [<80282dd0>]    psr: 60000193
+sp : bff8bed8  ip : 8003f680  fp : 00000000
+r10: 00000001  r9 : 80b33cc0  r8 : 000000d0
+r7 : 0bfcc000  r6 : bff8a000  r5 : bfff9300  r4 : 74616c70
+r3 : 80b33cc0  r2 : 80282dd0  r1 : 00002514  r0 : 20000113
+Flags: nZCv  IRQs off  FIQs on  Mode SVC_32  ISA ARM  Segment kernel
+Control: 10c53c7d  Table: 1000404a  DAC: 00000015
+Process swapper (pid: 1, stack limit = 0xbff8a2f0)
+Stack: (0xbff8bed8 to 0xbff8c000)
+bec0:                                                       80b99488 000023bd
+bee0: bfe1ea80 0000005f bfe493b8 80b5c1ec 80b5c1e8 0000005f 00000003 80282dd0
+bf00: 80b5c34c 00000000 00000002 bfe1ea80 0000005f 80283a00 80ba4e70 80b5c34c
+bf20: 80ba5050 bfff0000 00000000 00000001 00000014 80ba5274 00000002 00000004
+bf40: 00000000 80021928 00000000 80020e44 00000000 80ba5150 00000001 8002133c
+bf60: 80a7e97c 80145eb8 80ba4c4c 00000000 80044a7c 00000013 80b8b820 80020788
+bf80: 80a4e6a0 00000013 80031948 80031948 80031e2c 8003e5c0 800b2214 80b93ef8
+bfa0: 80b2f080 bff8a018 000001df 00000013 00000000 3734e968 00000039 00000000
+bfc0: 00000270 80031948 80031e2c 80044a7c 00000013 00000000 00000000 00000000
+bfe0: 00000000 80008984 00000000 00000000 800088c4 80044a7c 90200008 2e680601
+[<800f2768>] (kmem_cache_alloc+0xa8/0x100) from [<80282dd0>] (con_insert_unipair+0xb8/0x104)
+[<80282dd0>] (con_insert_unipair+0xb8/0x104) from [<80283a00>] (con_set_default_unimap+0xe4/0x16c)
+[<80283a00>] (con_set_default_unimap+0xe4/0x16c) from [<80020e44>] (console_map_init+0x44/0x50)
+[<80020e44>] (console_map_init+0x44/0x50) from [<8002133c>] (vty_init+0x18c/0x19c)
+[<8002133c>] (vty_init+0x18c/0x19c) from [<80020788>] (tty_init+0x12c/0x144)
+[<80020788>] (tty_init+0x12c/0x144) from [<8003e5c0>] (do_one_initcall+0x11c/0x174)
+[<8003e5c0>] (do_one_initcall+0x11c/0x174) from [<80008984>] (kernel_init+0xc0/0x144)
+[<80008984>] (kernel_init+0xc0/0x144) from [<80044a7c>] (kernel_thread_exit+0x0/0x8)
+Code: 1afffff3 e595b014 e2811004 e3a0a001 (e794b00b)
+---[ end trace 51e0f80cd28905c7 ]---
+Kernel panic - not syncing: Attempted to kill init!
+[<8004a944>] (unwind_backtrace+0x0/0xf4) from [<80578bf0>] (panic+0x84/0x198)
+[<80578bf0>] (panic+0x84/0x198) from [<8007c588>] (complete_and_exit+0x0/0x1c)
+[<8007c588>] (complete_and_exit+0x0/0x1c) from [<bff8bcb8>] (0xbff8bcb8)
+CPU1: stopping
+[<8004a944>] (unwind_backtrace+0x0/0xf4) from [<8003e338>] (do_IPI+0x144/0x154)
+Unable to handle kernel paging request at virtual address fffffffe
+pgd = 80004000
+[fffffffe] *pgd=4fffe821, *pte=00000000, *ppte=00000000
+Internal error: Oops: 80000007 [#2] PREEMPT SMP
+Modules linked in:
+CPU: 0    Tainted: G      D      (3.0.35-2666-gbdde708 #1)
+PC is at 0xfffffffe
+LR is at __rcu_process_callbacks+0x160/0x350
+pc : [<fffffffe>]    lr : [<800b3fb4>]    psr: a0000133
+sp : bff8bb70  ip : 00000000  fp : 00000009
+r10: 8003c1c8  r9 : bff06a98  r8 : 8c008660
+r7 : 80b4c780  r6 : 00000007  r5 : 8c008648  r4 : ffffffff
+r3 : bfe40054  r2 : ffffffff  r1 : 40004081  r0 : bfe40054
+Flags: NzCv  IRQs on  FIQs on  Mode SVC_32  ISA Thumb  Segment user
+Control: 10c53c7d  Table: 1000404a  DAC: 00000015
+Process swapper (pid: 1, stack limit = 0xbff8a2f0)
+
+
+后来更换了开发板提供的编译器，(先删除了之前的编译工具包arm-none-linux-，然后再解压开发板提供的编译工具，之前已安装相应的依赖工具包如64bit兼容等，setup_env.sh脚本)，编译Linux-3.0.35内核。
+下载，成功。
+

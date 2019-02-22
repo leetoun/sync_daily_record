@@ -1,0 +1,22 @@
+参考:
+https://h30471.www3.hp.com/t5/da-yin-ji-yu-sao-miao-yi-de-an-zhuang-wen-ti/Ubuntu-16-04wu-fa-lian-jie-daoLaser-Jet-Pro-MFP-M128fn-wang-luo-da-yin-ji/m-p/836233#M48419
+
+可以使用如下命令进行查看:
+	$hp-check -r
+这个命令会给出相应的信息.如那些包是需要的,哪些是可选择的.
+
+2.使用HP Device Manager中CUPS Web Interface功能进行打印机添加，或直接在浏览器地址栏访问http://localhost:631
+
+3.进入界面后，选择Adding Printers and Classes进入Administration页面。
+
+4.选择Printers内容栏中的Find New Printers按钮，进行添加打印机，按照步骤小心准确选择相应信息，可选择设置成默认打印机。
+
+5.验证是否成功可以执行如下命令，如果所在路径下有相应.ppd文件说明添加成功了。
+ll /etc/cups/ppd/
+total 40
+drwxr-xr-x 2 root lp  4096 8月   7 12:11 ./
+drwxr-xr-x 5 root lp  4096 8月   7 12:14 ../
+-rw-r----- 1 root lp 13407 8月   7 12:11 HP_LaserJet_Pro_MFP_M128fn.ppd
+-rw-r----- 1 root lp 13407 8月   7 12:10 HP_LaserJet_Pro_MFP_M128fn.ppd.O
+
+6.打印页面进行实测，成功打印。

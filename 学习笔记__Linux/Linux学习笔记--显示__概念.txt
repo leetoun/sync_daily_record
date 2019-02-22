@@ -1,0 +1,68 @@
+桌面环境：
+	结合X客户端，提供通用图形用户界面元素,如图标、工具栏、壁纸,桌面小部件。 大多数桌面环境包括提供一套
+整合的应用程序和实用工具。 最重要的是，桌面环境提供他们自己的 window manager, 但是通常被替换为另一个兼容的。
+	用户可以自由搭配不同桌面环境的程序，桌面环境只是提供一个完整的和方便的方法完成这项任务。
+	请注意，用户可以自由地混合和匹配来自多个桌面环境中的应用。 
+例如，KDE 用户可以安装和运行 GNOME 应用程序如Epiphany web 浏览器，他/她宁愿在 KDE 的 Konqueror web 浏览器。
+	这种方法的一个缺点是,许多应用程序提供的桌面环境项目严重依赖其DE各自底层库。因此，从一系列桌面环境中安装应用程序将需要安装更多的依赖关系。用户为了节省磁盘空间，通常不会使用这样的混合环境,他们会考虑轻量级替代方案。 
+	此外，桌面环境自带的程序，与该桌面环境整合最佳。从表面上看，混合环境中的部件工具包会造成视觉上的差异。(也就是说,接口将使用不同的图标和小部件样式)。 在用户体验方面，混合环境中的行为可能同样可能造成混乱或意外的行为。(例如单点击与双击图标;拖和拖放功能)。
+	在安装桌面环境之前，X 服务器安装是必需的。详细信息，请参阅 Xorg。 
+
+
+X server(Xorg是这套系统的开源实现)
+	
+
+
+
+
+Xorg：
+
+
+
+
+
+lightDM:
+
+
+
+
+xrandr:
+
+
+
+
+
+
+X Window System:
+
+
+
+多于一个显卡
+你必须指定正确的驱动以使用你的显卡。 
+--------------------------------------
+Section "Device"
+    Identifier      "Screen0"
+    Driver          "nouveau"
+    BusID           "PCI:0:12:0"
+EndSection
+
+Section "Device"
+    Identifier      "Screen1"
+    Driver          "radeon"
+    BusID           "PCI:1:0:0"
+EndSection
+---------------------------------------
+为了获取 BusID： 
+	$ lspci | grep VGA
+01:00.0 VGA compatible controller: nVidia Corporation G96 [GeForce 9600M GT] (rev a1)
+----------------------------------------
+这个示例的BusID是 1:0:0. 
+
+
+
+
+
+Reference：
+1. https://wiki.archlinux.org/index.php/Xorg_(简体中文)       Xorg
+2. http://linux.vbird.org/linux_basic/0590xwindow.php	      鸟哥的Linux私房菜
+3. https://www.linuxidc.com/Linux/2016-12/138495.htm          解决DISPLAY的问题

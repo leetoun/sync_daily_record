@@ -1,0 +1,38 @@
+第5章
+1. 
+    DECENT包含两个功能，粗颗粒的裁剪和经过训练的量化(less bit param)。这两步减少了执行操作并量化的权重。
+图35显示了示意图，在这个版本中只包含了量化工具，不包括prune工具。
+    通常，在训练神经网络时使用32位浮点权值和激活值。DECENT通过转换32bit的浮点权重为INT8
+可以降低计算复杂度，且不降低预测精度。int8权重降低了内存带宽需求，可以提供更快的速度和更高的效率。Quantization工具
+支持神经网络中常用的layer，像卷积、池化、fully-connected全连接层、batch norm批标准化。
+    量化处理后不需要再进行训练，只需要一小组图像数据，分析激活值的分布，进行校准。
+    量化的时间从几秒到几分钟，取决于神经网络的大小。
+    DECENT基于Caffe v1.0 并且需要GPU来运行它。这个版本只支持Caffe format。
+    NOTE:
+	注意，DECENT的输出文件是一个扩展Caffe模型，只能当作DNNC 编译器的输入。
+
+2. DECENT使用
+    DECENT支持的选项如下，见Table 10.
+
+3. 流程
+    a.  准备神经网络模型
+	在运行DECENT前，需要以（浮点格式）和（校准set）准备Caffe模型，包括：
+	* Caffe浮点网络模型 		prototxt文件；
+	* 预训练的Caffe 浮点网络模型 	caffemodel文件；
+	* 校准数据集	校准set通常是实际使用图像或训练set的一个子集，至少100张。确保在image_data_param
+	   		中设置正确的（root_folder）和（源）为实际校准图像和图像文件夹路径，如图36中：
+			source："./data/imagenet_256/calibration.txt”
+			root_folder: "./data/imagenet_256/calibration_images/"
+	NOTE:  DECENT只支持3平均值，需要转换为3-mean-value。
+    b.  运行
+	运行命令行，来生成定点模型：
+		$decent quantize -model float.prototxt -weights float.caffemodel [options]    #其中[options]表示可选参数。有
+	3个常用的可选参数：
+		*  weights_bit: 量化权重和偏执的位宽（默认是8）
+		*  data_bit: 量化激活值的位宽 （默认是8）
+		*  method: 量化方法。0代表OVER_FLOW；1代表DIFF_S。（默认为0，减少执行时间。）
+
+    c.  输出
+	运行上面命令后，在默认文件夹". /quantize_results/"下生成2个文件。他们用作DNNC的输入文件：
+		*  定点网络模型 （deploy.prototxt）
+		*  定点权重值 （deploy.caffemodel）

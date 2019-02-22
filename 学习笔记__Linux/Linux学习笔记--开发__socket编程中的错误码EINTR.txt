@@ -1,0 +1,88 @@
+socket默认是阻塞的。
+
+解阻塞与非阻塞recv返回值没有区分，都是
+
+ 1. <0 出错
+
+ 2. =0 连接关闭
+
+ 3. >0 接收到数据大小
+
+---------------------------------- EINTR --------------------------------------
+慢系统调用(slow system call)：
+    此术语适用于那些可能永远阻塞的系统调用。永远阻塞的系统调用是指调用有可能永远无法返回，多数网络支持函数都属于这一类。如：若没有客户连接到服务器上，那么服务器的accept调用就没有返回的保证。
+
+EINTR错误的产生：
+当阻塞于某个慢系统调用的一个进程，捕获某个信号且相应信号处理函数返回时，该系统调用可能返回一个EINTR错误。例如：在socket服务器端，设置了信号捕获机制，有子进程，当在父进程阻塞于慢系统调用时由父进程捕获到了一个有效信号时，内核会致使accept返回一个EINTR错误(被中断的系统调用)。
+
+EINTR的处理方法：
+当碰到EINTR错误的时候，可以采取有一些可以重启的系统调用要进行重启，而对于有一些系统调用是不能够重启的。例如：accept、read、write、select、和open之类的函数来说，是可以进行重启的。
+不过，对于套接字编程中的connect函数，我们是不能重启的。
+若connect函数返回一个EINTR错误的时候，我们不能再次调用它，否则将立即返回一个错误。针对connect不能重启的处理方法是，必须调用select来等待连接完成。
+
+
+
+
+------------------------------------多进/线程时的Reentry(安全问题)------------------------------------
+在 linux 或者 unix 环境中， errno 是一个十分重要的部分。在调用的函 数出现问题的时候，我们可以通过 errno 的值来确定出错的原因，这就会涉及到一个问题，那就是如何保证 errno 在多线程或者进程中安全？
+我们希望在多线程或者进程中，每个线程或者进程都拥有自己独立和唯一的一个 errno ，这样就能够保证不会有竞争条 件的出现。
+一般而言，编译器会自动保证 errno 的安全性，但是为了妥善期间，我们希望在写 makefile 的时 候把 _LIBC_REENTRANT 宏定义，比 如我们在检查
+ <bits/errno.h> 文件中发现如下的定义：
+-----------------------------------------------
+# ifndef __ASSEMBLER__ 
+/* Function to get address of global `errno' variable. */ 
+extern int *__errno_location (void) __THROW __attribute__ ((__const__));   
+
+# if !defined _LIBC || defined _LIBC_REENTRANT 
+/* When using threads, errno is a per-thread value. */ 
+# define errno (*__errno_location ()) 
+# endif 
+# endif /* !__ASSEMBLER__ */ 
+#endif /* _ERRNO_H */ 
+-------------------------------------
+也就是说，在没有定义 __LIBC 或者定义 _LIBC_REENTRANT 的时候， errno 是多线程 / 进程安全的。 
+一般而言， __ASSEMBLER__, _LIBC 和 _LIBC_REENTRANT 都不会被编译器定义，但是如果我们定义 _LIBC_REENTRANT 一次又何妨那？ 
+为了检测一下你编译器是否定义上述变量，不妨使用下面一个简单程序。
+
+
+
+
+---------------------------------------EAGAIN/EINTR/-----------------------------------------------
+EAGAIN错误：(经常是在non-blocking操作时)
+在Linux环境下开发经常会碰到很多错误(设置errno)，其中EAGAIN是其中比较常见的一个错误(比如，用在非阻塞操作中)。
+
+ 
+linux下使用write\send发送数据报 EAGAIN : Resource temporarily unavailable 错
+ ，
+首先是我把套接字设置为--异步--的了，然后在使用write发送数据时采取的方式是循环发送大量的数据；由于是异步的，write\send将要发送的数据提交到发送缓冲区后是立即返回的，并不需要对端确认数据已接收。在这种情况下是很有可能出现发送缓冲区被填满，导致write\send无法再向缓冲区提交要发送的数据。因此就产生了Resource temporarily unavailable的错误，EAGAIN 的意思也很明显，就是要你再次尝试。
+ 
+    
+从字面上来看，是提示再试一次。这个错误经常出现在当应用程序进行一些非阻塞(non-blocking)操作 (对文件或socket)的时候。
+例如，以 O_NONBLOCK的标志打开文件/socket/FIFO，如果你连续做read操作而没有数据可读。此时程序不会阻塞起来，等待数据准备就绪返回。read函数会返回一个错误EAGAIN，提示你的应用程序现在没有数据可读请稍后再试。 
+又例如，当一个系统调用(比如fork)因为没有足够的资源(比如虚拟内存)而执行失败，返回EAGAIN提示其再调用一次(也许下次就能成功)。
+
+Linux - 非阻塞socket编程处理EAGAIN错误　
+在linux进行非阻塞的socket接收数据时经常出现Resource temporarily unavailable，errno代码为11(EAGAIN)，这是什么意思？　这表明你在非阻塞模式下调用了阻塞操作，在该操作没有完成就返回这个错误，这个错误不会破坏socket的同步，不用管它，下次循环接着recv就可以。
+对非阻塞socket而言，EAGAIN不是一种错误。在VxWorks和Windows上，EAGAIN的名字叫做EWOULDBLOCK。　
+
+另外，如果出现EINTR即errno为4，错误描述Interrupted system call，操作也应该继续。　
+最后，如果recv的返回值为0，那表明连接已经断开，我们的接收操作也应该结束。 
+ iReadSizeOnce=read(iOpenCom,RxBuf+iReadSize,1024);    
+if (iReadSizeOnce != ZERO)    
+{
+        if (iReadSizeOnce != EAGAIN)
+        {
+            continue;
+        }
+        else
+        {
+            //stCComApiLog.LogError("读串口操作错误");
+            return(FUN_ERROR);
+        }
+}
+
+---------------------
+来源：CSDN 
+https://blog.csdn.net/yyxyong/article/details/62894113?utm_source=copy 
+https://blog.csdn.net/bingqingsuimeng/article/details/50460462
+
