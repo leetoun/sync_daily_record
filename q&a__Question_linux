@@ -1,3 +1,0 @@
-2019_02_22
-1. ubuntu如何开机自动挂载windows分区？  UUID,fstab,(label是windows分区的名称),blkid,/dev/disk/*uuid
-2. 
