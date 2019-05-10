@@ -1,0 +1,9 @@
+3.5
+  Vim中使用GLOBAL，在vim6.2以后，可以使用gtags.vim脚本。
+
+* 可以使用大部分的GLOBAL功能；
+* 可以识别当前的token和它的类型；
+* 特殊字符‘%’、‘#’和输入补全可用；
+
+  不幸的是，tag 堆栈功能不可用。如果想使用这个功能，可以试试gtags-cscope.vim。见3.7章Gtags-cscope。P21.
+

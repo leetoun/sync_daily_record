@@ -1,0 +1,229 @@
+GLOBAL
+  Global的project的概念，是当前目录及其包含的子目录的所有源文件。source tree。
+项目的任何地方都可以使用“tag database”。不需要指定database的位置，因为global(1)可以自己定位。也因此，可以在project内自由的移动，
+也可以在不同的project内外进行移动。(移动什么？移动source么，还是移动database？)
+
+特性：
+	*支持不同语言；
+	*在不同的编辑器中使用同样的方法；
+	*快速找到符号位置；
+	*允许duplicate tags；
+	*可定位到特定的pattern路径；
+	*hierarchical，分层的搜索；
+	*不仅在source project搜索，还可以在library project中搜索；
+	*生成完成输入方法的完成列表；
+	支持多种输出格式；
+	支持自定义添加文件进行tag，标记；
+	支持POSIX-1003.2 regular expression,正则表达式；
+	tag文件独立于machine architecture；
+	支持增量更新tag文件；
+	新语言可以使用内置的parser；
+	可自定义gtags.conf，来自定义；
+	生成超文本的source code；
+	紧凑的格式，可以节省磁盘空间；
+	支持客户端/服务器环境(TRAMP ready)；
+	忽略2进制文件、dot文件、特定的文件；
+	包括了兼容cscope-compatible程序，gtags-cscope。
+	包含了像grep一样的命令行，（-g 命令）；
+	支持像grep命令符高亮；
+
+
+1.1命令行：
+  可以在命令行中使用global，这是GLOBAL相比于其他tagging system的一大优点。
+如果在命令行中使用，需要在相应project的根目录下，先执行gtags。例如，查看vi编辑器的源代码，可以：
+	$cd /usr/src/usr.bin/vi
+	$gtags
+  Gtags会遍历所有的子文件夹，从源文件中找到符号，在当前文件夹，生成tag树。之后，所有当前文件夹下的文件和文件夹都会被
+当作project来处理。
+	$ls G*
+	GPATH GRTAGS GTAGS
+	GPATH: 定义 数据库
+	GRTAGS:引用 数据库
+  	GPATH:路径名称 数据库
+  你需要准备相应的磁盘空间，如Linux的内核Linux-2.6.32大概390MB，则生成如下大小的tag文件：
+GPATH		6MB
+GTAGS		81MB
+GRTAGS		202MB
+------------------------
+		289MB
+
+
+
+1.2基本使用
+  一旦在根目录文件夹内生成了tag文件，你就可以在project的任何位置执行global命令。默认情况下，你得到的是“相对路径地址”。
+如果你在project在使用golbal，则会报错。global：GTAGS not found.
+  查看定义：
+	global + 名字
+	$global func1（函数名）
+		DIR1/fileB.c （相对路径名称）
+
+  查看引用：
+	global + -r (Referenc)
+	$global -r func1
+		../DIR1/fileA.c 
+
+  使用正则表达式：
+	$cd /home/user/root
+	$global 'fucn[1-3]' （匹配func1、func2、func3）
+		DIR1/fileB.c
+		DIR2/fileC.c
+
+  查看详细内容：
+	global + -x选项 
+	$global func2
+	`	DIR2/fileC.c
+	$global -x func2
+		func2		2 DIR2/fileC.c		func2(){ i++;}
+		func2		4 DIR2/fileC.c		func2(){ i--;}
+
+  查看绝对地址：
+	global + -a (Absolute)
+	$global -a func1
+		/home/user/root/DIR1/fileB.c
+
+  查看没有定义在GTAGS中的符号：
+	global + -s（）
+	$global -xs XX
+		XX		1 DIR2/fileC.c		#ifdef	XX
+	有点类似于egrep命令，但是它更方便，因为它支持在全project进行搜索，并只在source文件中搜索。
+	同样还有如下选项：
+	-O  只在文本文件中搜索；
+	-o  在源文件和文本文件中都进行搜索；
+	-l  只在当前的文件夹进行搜索；
+	-e  同egrep；	
+	-G  同egrep；	
+	-i  同egrep；	
+
+  查看包括特定pattern的所有路径名：
+	global + -P （PATH）
+	$ global -P fileB
+		DIR1/fileB.c
+	$ global -P ’1/’
+		DIR1/fileA.c
+		DIR1/fileB.c
+	$ global -P ’\.c$’
+		DIR1/fileA.c
+		DIR1/fileB.c
+		DIR2/fileC.c
+
+  打印tags清单，到指定的文件(s)中
+	global + -f （file）
+	$ global -f DIR2/fileC.c
+	func2 2 DIR2/fileC.c func2(){ i++; }
+	func2 4 DIR2/fileC.c func2(){ i--; }
+	func3 6 DIR2/fileC.c func3(){
+
+  限制检索的范围，当前文件夹：
+	global + -l （location）
+	$ cd DIR1
+	$ global -xl func[1-3]
+	func1 1 fileB.c func1(){...}
+
+
+1.3应用使用
+
+  A1:
+	  添加project外的文件到tag项目中进行tagging：
+		$find . -type f -print > /tmp/lis	#make a file set
+		$vi /tmp/list				#customize the file set
+		$gtags -f /tmp/list
+
+  A2:
+  	  如果你的源文件在只读文件夹CDROM中，那么你无法生成一个tag文件树到根目录中。这种情况
+	* 你可以在另外一个目录下生成tag文件,需要使用“GTAGSROOT”环境变量:
+		$mkdir /var/dbpath		#首先建立一个目录，用于存放database
+		$cd /cdrom/src			#进入只读文件
+		$gtags /var/dbpath		#在目的文件夹中进行gtags
+		$export GTAGSROOT='pwd'		#将GTAGSROOT定义到只读文件夹
+		$export GTAGSDBPATH=/var/dbpath	#然后使用GTAGSDBPATH，将database路径定义到，目标文件夹/var/dbpath。
+		$global func			#可以使用global命令。
+	* 另外的第一个方法：因为global同样在/usr/obj + <current directory>中定位tag文件，你可以如下设置：
+	避开CDROM只读文件，在/usr/obj/下面建立tag文件。如下
+		$cd /cdrom/src
+		$mkdir -p /usr/obj/cdrom/src
+		$gtags /usr/obj/cdrom/src	#在这个目录下进行tag文件
+		$global func		#可以使用global了。
+	  这里-O，--objdir选项自动为你做了。且obj文件夹的路径可以被“MAKEOBJDIRPREFIX”环境变量进行修改。
+
+  A3:
+	  如果想定位没在源文件树中定义的符号，你可以指定库library的路径，使用“GTAGSLIBPATH”环境变量。
+	应该在每个“GTAGSLIBPATH”中的文件夹中，执行gtags生成tag文件。如果在相应的文件夹中没有发现GTAGS，global则忽略这个
+	文件夹。
+		$pwd
+		/develop/src/mh			#这个是源文件的project
+		$gtags
+		$ls G*TAGS	
+		GRTAGS	GTAGS
+		$global mhl			#mhl()被发现了。
+		uip/mhlsbr.c
+		$ global strlen 		# strlen() 没被发现
+
+		$ (cd /usr/src/lib; gtags) 	# library source 库文件
+		$ (cd /usr/src/sys; gtags) 	# kernel source  库文件
+		$export GTAGSLIBPATH=/usr/src/lib:/usr/src/sys
+		$ global strlen		#再次定位strlen的tag
+		../../../usr/src/lib/libc/string/strlen.c # found in library	#在库文件中发现了strlen()
+		$ global access			#定位access是否定义
+		../../../usr/src/sys/kern/vfs_syscalls.c # found in kernel
+	* 或者，可以直接将库和内核的文件夹添加到tag系统中。
+		$ ln -s /usr/src/lib .		#建立库软连接
+		$ ln -s /usr/src/sys .		#建立系统文件链接
+		$ gtags				#
+		$ global strlen			#
+		lib/libc/string/strlen.c
+		$ global access
+		sys/kern/vfs_syscalls.c
+  A4:
+	如果你忘记了一个符号的名称，可以是用-c(complete)进行补全操作。
+		$global -c kmem			#可能是k..k.. kmem..
+			kmem_alloc
+			kmem_alloc_pageable
+			kmem_alloc_wait
+			kmem_free
+			kmem_free_wakeup	
+			kmem_init
+			kmem_malloc
+			kmem_suballoc 		# 如果这个是我要的。
+		$global kmem_suballoc 
+			../vm/vm_kern.c
+
+  A5：
+	没明白，在shell中使用-c命令和补全命令，什么什么
+	In BASH:
+		$ funcs()		#这个是什么意思？？
+		> {
+		> local cur
+		> cur=${COMP_WORDS[COMP_CWORD]}
+		> COMPREPLY=(‘global -c $cur‘)
+		> }
+		$ complete -F funcs global
+
+		$ global kmem_TABTAB （是补全命令的TAB键）
+		kmem_alloc kmem_alloc_wait kmem_init
+		kmem_alloc_nofault kmem_free kmem_malloc
+		kmem_alloc_pageable kmem_free_wakeup kmem_suballoc
+
+		$ global kmem_sTAB  （是补全命令的TAB键）
+		$ global kmem_suballoc
+		../vm/vm_kern.c
+	如果你喜欢输入完成命令。可以试试globash命令。
+
+  A6:
+	你可以只输入一个命令，就编辑所有包含特定字符的文件。如：
+		$ vi 'global func1'	#edit fileB.c
+
+  A7:
+	如果你想按顺序依次浏览很多文件，可以：
+		$global -xr fork | awk '{printf "viev +%s %s\n",$2,$3}'
+		view +650 ../dev/aic7xxx/aic7xxx_asm.c
+		view +250 ibcs2/ibcs2_misc.c
+		view +401 linux/linux_misc.c
+		view +310 ../kern/init_main.c
+		view +318 ../kern/init_main.c
+		view +336 ../kern/init_main.c
+		view +351 ../kern/init_main.c
+		$ !! | sh 	# from now on, go to next tag with ’ZZ’？？什么意思？
+
+
+
+
