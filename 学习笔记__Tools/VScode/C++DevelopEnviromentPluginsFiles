@@ -1,0 +1,17 @@
+作为在Windows环境下习惯使用Visual Studio IDE的人，对于Linux环境下的Vim编辑使用十分难受，虽然网上很多人说vim非常牛逼和强大，但是我更加习惯于使用VS code的界面，所以我选择VS code作为编辑器使用。
+
+VS code本身是一个编辑器，所以如果需要调试等功能需要自己安装一些插件，并且配置相关的json文件。
+
+linux 环境下，g++和clang都可以作为C++的编译器，我这里选择使用的是clang。
+
+首先是插件选择：
+
+(1) C/C++ 微软自带的C/C++插件。
+
+(2) C/C++ Clang Command Adapter：提供静态检测（Lint）
+
+(3) Code Runner：右键即可编译运行单文件
+
+(4) Bracket Pair Colorizer：彩虹花括号
+
+(5) Include Autocomplete：提供头文件名字的补全
