@@ -1,3 +1,0 @@
-X server的问题：
-$ps aux	#找到如下的 X sever进程
-root      5538  0.3  1.9 377608 80572 tty7     Ss+  16:59   0:09 /usr/lib/xorg/Xorg -core :0 -seat s
