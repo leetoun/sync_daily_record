@@ -1,0 +1,33 @@
+
+DOT:
+* dot 画一幅图主要有4个phases。
+* 主要分为有向图digraph和graph无向图，其中有向图使用“->”无向图使用“--”。
+
+概念：
+  dot接收dot语句作为输入，主要有3种对象概念：Node、graphs、edges。
+graph是最外层的对象，主要分为有向图和无向图。
+  程序中node，表示设置点的默认值。
+  程序中edge，表示设置边的默认值。
+
+  给对象添加属性可以附在中括号“[]”中，使用/* */进行注释。
+
+  点的默认参数：shape=ellips，width=0.75，height=0.5 and labeled by the node name。
+一些点的形状在appendix.h中，一些常用的shape形状有box，circle，record，plaintext。
+
+简单常用属性说明：
+*【shape 】形状	：box（方形）、
+*【weight】边的重要程度：默认为1；
+*【style】线类型：dotted(点状的线)、filled
+*【color】颜色	：red（红色）、也可以使用3色数值“.7 .3 1.0”
+*【label】线边的注释：可以是双引号括起来的字符串“make a\n string”。\n格式控制。
+*【dir】线箭头方向：both、none、back、forward（默认）。
+
+
+
+
+
+
+================ 注意 =========================
+1.程序中的单个节点名称node，不能用“空格”隔开，会被识别为2个node；
+2.label出现在2个node之间的注释，如果时一个node的话，就是node名字。
+3.layout的引擎engine有很多：dot、circo、fdp、sfdp、neato、nop、osage、patchwork

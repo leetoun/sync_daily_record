@@ -1,0 +1,4 @@
+建立petalinux工程
+#调整物理内存（如果不输入如下命令，下一步会报错，主要是linux内核编译中报错）
+ulimit -a
+ulimit -s 16384
