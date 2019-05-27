@@ -1,0 +1,90 @@
+
+1.添加必要的插件
+  推荐的插件：
+  * C/C++
+  * c++ intellisense
+  * code runner         :可以运行代码片段
+  * include Autocomplete：自动不全
+  * vim
+  * native debug: 参考(https://marketplace.visualstudio.com/items?itemName=webfreak.debug)
+
+2.调用快捷键 Ctrl+Shift+B (build)构建可执行文件，此时会提醒你“No task runner configured”,
+或者调出命令窗口，输入task，配置或者新建task。
+  * 此时，需要点击右边的蓝色按钮”Configure task runner"来生成编辑task.jason。
+  * 在弹出的列表中选择：others
+  * 之后会自动产生一个jason文件，需要根据情况修改其中的command和args变量，并保存：
+    “command”：“gcc”
+    “args”：["-g","${file}","-o","${workspaceRoot}/hello.out]
+
+3.按快捷键ctrl+shift+D调出debug界面，此时弹出选择debug的环境,参考(https://github.com/Microsoft/vscode-cpptools/blob/master/launch.md)
+  * 在左上角可以看见使用哪个配置进行debug，点击“齿轮“可以进行配置;
+  * 创建并打开一个launch.jason配置文件，修改“target”这个变量内容为可执行文件路径,如：“./hello.out"
+  * 按快捷键F5运行这个程序，可以通过watch添加变量，也可以添加断点。
+  * 在下面的DEBUG CONSOLE里面可以看到调试的结果信息。 
+  * 常用的配置参数：
+        name：是配置或项目的名称；
+        type：一般是固定的，使用什么进行debug； 
+        request: "launch" 或者 "attach" 请求配置类型，launch为启动，attach为附加。
+        targetArchitecture: "x86" 生成的目标架构，一般为x86，也可以是arm，arm64，mips，x64，amd64，x86_64等
+        program: "${file}.out" 将要进行调试的程序的路径。
+        target: "./hello.out" 同上。
+        miDebuggerPath: //这个是调试器的路径。
+        args: 程序调试时，传递给程序的命令行参数。一般为空就行。
+        stopAtEntry: 是否在程序的入口停住。
+        cwd: "${workspaceRoot}" 调试程序时的工作目录；
+        externalConsole: 调试的时候是否显示控制台窗口。
+        preLaunchTask: "g++" 调试绘画开始前执行的任务，一般为编译程序，c++为g++，c为gcc
+                        也可以是task名字，如"build helloWorld",在task中的参数 “label“: "build helloWorld"就是这个task的名字。
+
+4. 一个task.jason的示例，可以作为参考：
+task.jason
+{
+    "version": "0.1.0",
+    "command": "g++",
+    "args": [
+        "-g",
+        "${file}",
+        "-o",
+        "${file}.exe"
+    ], // 编译命令参数
+    "problemMatcher": {
+        "owner": "cpp",
+        "fileLocation": [
+            "relative",
+            "${workspaceRoot}"
+        ],
+        "pattern": {
+            "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "severity": 4,
+            "message": 5
+        }
+    }
+}
+
+5. 一个launch.jason的示例，可以作为参考：
+launch.jason
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C++ Launch (GDB)", // 配置名称，将会在启动配置的下拉菜单中显示
+            "type": "cppdbg", // 配置类型，这里只能为cppdbg
+            "request": "launch", // 请求配置类型，可以为launch（启动）或attach（附加）
+            "targetArchitecture": "x86", // 生成目标架构，一般为x86或x64，可以为x86, arm, arm64, mips, x64, amd64, x86_64
+            "program": "${file}.exe", // 将要进行调试的程序的路径
+            "miDebuggerPath": "c:\\MinGW\\bin\\gdb.exe", // miDebugger的路径，注意这里要与MinGw的路径对应
+            "args": [
+                "blackkitty",
+                "1221",
+                "# #"
+            ], // 程序调试时传递给程序的命令行参数，一般设为空即可
+            "stopAtEntry": false, // 设为true时程序将暂停在程序入口处，一般设置为false
+            "cwd": "${workspaceRoot}", // 调试程序时的工作目录，一般为${workspaceRoot}即代码所在目录
+            "externalConsole": true, // 调试时是否显示控制台窗口，一般设置为true显示控制台
+            "preLaunchTask": "g++" // 调试会话开始前执行的任务，一般为编译程序，c++为g++, c为gcc
+        }
+    ]
+}
