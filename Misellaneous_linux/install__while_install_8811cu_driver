@@ -1,0 +1,10 @@
+https://blog.csdn.net/ymangu666/article/details/22872439。
+1.问题1：
+	在vm中编译安装的8812au.ko，在E40中安装出现问题。提示如下：
+	could not insert module 8812au.ko: invalid module format
+	
+	原因：
+	    可能是因为在u盘上直接执行的原因，可以拷贝到本机电脑上，再执行make.
+
+2.
+系统启动后，正常工作的模块都在/proc/modules文件中列出。使用lsmod命令也可显示相同内容。
